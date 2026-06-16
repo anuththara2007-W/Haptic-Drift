@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="Haptic Drift Ultimate Edition - Premium Mobile Racing Game">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#050510">
+    <title>Haptic Drift Ultimate</title>
+    <style>
+/* CSS_PLACEHOLDER */
+    </style>
+</head>
+<body>
+
+<div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="fxOverlay"></div>
+    <div id="damageOverlay"></div>
+    <div id="speedLines"></div>
+    
+    <div id="uiLayer">
+        <!-- HUD -->
+        <div id="hud" class="hidden">
+            <div class="hud-top-left">
+                <div class="bars hud-glass">
+                    <div class="bar-wrap"><div class="bar-fill" id="integrityFill" style="width:100%"></div><span class="bar-lbl">INTEGRITY</span></div>
+                    <div class="bar-wrap"><div class="bar-fill" id="nitroFill" style="width:100%"></div><span class="bar-lbl">NITRO</span></div>
+                </div>
+                <div class="hud-glass stat-box">
+                    <span class="stat-lbl">POS</span>
+                    <span class="stat-val" id="hudPos">1/21</span>
+                </div>
+            </div>
+            
+            <div class="hud-top-center">
+                <div class="hud-glass stat-box">
+                    <span class="stat-lbl">TIME</span>
+                    <span class="stat-val color-blue" id="hudTime">00:00.0</span>
+                </div>
+            </div>
+
+            <div class="hud-top-right">
+                <div id="minimap" class="hud-glass">
+                    <canvas id="minimapCanvas"></canvas>
+                </div>
+                <div class="hud-glass stat-box">
+                    <span class="stat-lbl">LAP</span>
+                    <span class="stat-val" id="hudLap">1/3</span>
+                </div>
+            </div>
+
+            <div id="comboMeter">
+                <div id="comboVal">x2.5</div>
+                <div id="comboLbl">DRIFT CHAIN</div>
+            </div>
+
+            <div class="hud-bottom-right">
+                <div class="hud-glass gear-box" style="margin-bottom: 10px;">
+                    <div class="rpm-wrap">
+                        <span class="rpm-lbl">RPM x1000</span>
+                        <div class="rpm-bar"><div id="rpmFill"></div></div>
+                    </div>
+                    <div class="gear-val" id="hudGear">1</div>
+                </div>
+                <div style="text-align: right;">
+                    <div id="speedVal">0</div>
+                    <div id="speedUnit">KM/H</div>
+                </div>
+            </div>
+
+            <div class="hud-bottom-left" style="pointer-events: auto;">
+                <button class="m-btn sm" id="btnPause" onclick="UI.nav('pauseMenu'); pauseGame();">||</button>
+                <button class="m-btn sm" id="btnCam" onclick="GAME.cam.next()">🎥</button>
+            </div>
+            
+            <div id="notificationBox"></div>
+        </div>
+
+        <!-- Screens -->
+        <div id="loadingScreen" class="screen">
+            <h1 class="logo">HAPTIC<br>DRIFT</h1>
+            <div class="sub">ULTIMATE EDITION</div>
+            <div id="loadBarWrap"><div id="loadBar"></div></div>
+            <div id="loadText">INITIALIZING ENGINE...</div>
+            <button class="btn hidden" id="btnStartInit" onclick="initEngine()" style="margin-top: 20px;">TAP TO START ENGINE</button>
+        </div>
+
+        <div id="mainMenu" class="screen hidden">
+            <h1 class="logo">HAPTIC<br>DRIFT</h1>
+            <div class="sub">ULTIMATE EDITION</div>
+            <div class="panel">
+                <button class="btn" onclick="UI.nav('modeSelect')">RACE</button>
+                <button class="btn" onclick="UI.nav('garage')">GARAGE</button>
+                <button class="btn" onclick="UI.nav('settings')">SETTINGS</button>
+            </div>
+            <div style="position: absolute; bottom: 30px; color: #888; font-size: 1rem; font-weight: 700;">LEVEL <span id="menuLevel" class="color-blue">1</span> | XP <span id="menuXp" class="color-pink">0</span></div>
+        </div>
+
+        <div id="modeSelect" class="screen hidden">
+            <h2 class="sec">SELECT EVENT</h2>
+            <div class="panel">
+                <button class="btn" onclick="startGame('arcade')">ARCADE RACING</button>
+                <button class="btn" onclick="startGame('timeTrial')">TIME TRIAL</button>
+                <button class="btn" onclick="startGame('freeDrive')">FREE DRIVE</button>
+                <button class="btn" onclick="UI.nav('mainMenu')" style="margin-top: 15px; border-color: var(--pink); color: var(--pink);">BACK</button>
+            </div>
+        </div>
+
+        <div id="garage" class="screen hidden">
+            <h2 class="sec">GARAGE</h2>
+            <div class="panel">
+                <div id="garagePreview"><canvas id="garageCanvas"></canvas></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <button class="btn sm" onclick="Garage.prevCar()">&larr;</button>
+                    <div id="gCarName" style="font-size: 1.5rem; font-weight: 900; font-style: italic; color: var(--cyan);">NEON X</div>
+                    <button class="btn sm" onclick="Garage.nextCar()">&rarr;</button>
+                </div>
+                <div class="tabs">
+                    <div class="tab active" onclick="Garage.setTab(0)">STATS</div>
+                    <div class="tab" onclick="Garage.setTab(1)">PAINT</div>
+                    <div class="tab" onclick="Garage.setTab(2)">UPGRADES</div>
+                </div>
+                <div id="gTab0" class="tab-content active">
+                    <div class="setting-row">SPEED <div class="rpm-bar" style="width: 150px;"><div id="gStatSpd" style="height:100%; background:var(--cyan); width:50%;"></div></div></div>
+                    <div class="setting-row">ACCEL <div class="rpm-bar" style="width: 150px;"><div id="gStatAcc" style="height:100%; background:var(--pink); width:50%;"></div></div></div>
+                    <div class="setting-row">HANDLING <div class="rpm-bar" style="width: 150px;"><div id="gStatHnd" style="height:100%; background:var(--green); width:50%;"></div></div></div>
+                </div>
+                <div id="gTab1" class="tab-content">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;" id="gPaintColors"></div>
+                </div>
+                <div id="gTab2" class="tab-content">
+                    <div class="setting-row">UNDERGLOW <span class="tog" id="togGlow" onclick="Garage.toggleGlow()">ON</span></div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;" id="gNeonColors"></div>
+                </div>
+                <button class="btn" style="margin-top: 20px; border-color: var(--pink); color: var(--pink);" onclick="UI.nav('mainMenu')">BACK</button>
+            </div>
+        </div>
+
+        <div id="settings" class="screen hidden">
+            <h2 class="sec">SETTINGS</h2>
+            <div class="panel">
+                <div class="tabs">
+                    <div class="tab active" onclick="Settings.setTab(0)">CONTROLS</div>
+                    <div class="tab" onclick="Settings.setTab(1)">SENSORY</div>
+                    <div class="tab" onclick="Settings.setTab(2)">GRAPHICS</div>
+                </div>
+                <div id="sTab0" class="tab-content active">
+                    <div class="setting-row">STEERING <span class="tog" id="togSteer" onclick="Settings.toggle('gyro')">TOUCH</span></div>
+                    <div class="setting-row" id="sSensRow" style="display:none;">GYRO SENS <input type="range" id="sSens" min="0.5" max="3" step="0.1" value="1.5" onchange="Settings.update()"></div>
+                    <div class="setting-row" id="sDeadRow" style="display:none;">DEADZONE <input type="range" id="sDead" min="0" max="0.2" step="0.01" value="0.05" onchange="Settings.update()"></div>
+                    <div class="setting-row">TRANSMISSION <span class="tog" id="togTrans" onclick="Settings.toggle('manual')">AUTO</span></div>
+                    <button class="btn sm" id="btnCalib" style="display:none; margin-top: 10px;" onclick="Input.calibrateGyro()">CALIBRATE CENTER</button>
+                </div>
+                <div id="sTab1" class="tab-content">
+                    <div class="setting-row">HAPTICS 2.0 <span class="tog" id="togHap" onclick="Settings.toggle('haptics')">ON</span></div>
+                    <div class="setting-row">INTENSITY <input type="range" id="sHapInt" min="0" max="2" step="0.1" value="1" onchange="Settings.update()"></div>
+                    <div class="setting-row">AUDIO <span class="tog" id="togAud" onclick="Settings.toggle('audio')">ON</span></div>
+                    <div class="setting-row">VOLUME <input type="range" id="sAudVol" min="0" max="1" step="0.05" value="0.8" onchange="Settings.update()"></div>
+                    <button class="btn sm" onclick="Haptics.test()" style="margin-top: 10px;">TEST HAPTICS</button>
+                </div>
+                <div id="sTab2" class="tab-content">
+                    <div class="setting-row">FPS LIMIT <span class="tog" id="togFps" onclick="Settings.toggle('fps60')">60</span></div>
+                    <div class="setting-row">HIGH RES <span class="tog" id="togRes" onclick="Settings.toggle('highRes')">ON</span></div>
+                    <div class="setting-row">MOTION BLUR <span class="tog" id="togBlur" onclick="Settings.toggle('blur')">ON</span></div>
+                </div>
+                <button class="btn" style="margin-top: 20px; border-color: var(--pink); color: var(--pink);" onclick="UI.nav('mainMenu')">BACK</button>
+            </div>
+        </div>
+
+        <div id="pauseMenu" class="screen hidden">
+            <h2 class="sec">PAUSED</h2>
+            <div class="panel">
+                <button class="btn" onclick="resumeGame()">RESUME</button>
+                <button class="btn" onclick="startGame(GAME.mode)">RESTART</button>
+                <button class="btn" onclick="quitGame()" style="border-color: var(--red); color: var(--red);">QUIT TO MENU</button>
+            </div>
+        </div>
+
+        <div id="gameOver" class="screen hidden">
+            <h1 class="logo" style="background: linear-gradient(135deg, var(--red), var(--orange)); -webkit-background-clip:text;">WRECKED</h1>
+            <div class="panel" style="text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: 900; margin-bottom: 5px;">SCORE: <span id="goScore" class="color-blue">0</span></div>
+                <div style="font-size: 1.2rem; margin-bottom: 20px;">XP EARNED: <span id="goXp" class="color-pink">+0</span></div>
+                <button class="btn" onclick="startGame(GAME.mode)">TRY AGAIN</button>
+                <button class="btn" onclick="quitGame()" style="border-color: var(--red); color: var(--red);">MAIN MENU</button>
+            </div>
+        </div>
+
+        <div id="rotatePrompt" class="screen hidden">
+            <div id="rotateIcon">📱</div>
+            ROTATE TO LANDSCAPE<br><span style="font-size: 1rem; color: #888; font-weight: 400; text-transform: none; letter-spacing: 0;">Game requires landscape mode</span>
+        </div>
+
+        <!-- Mobile Controls -->
+        <div id="mobileControls">
+            <div class="m-zone" id="mzLeft">
+                <div class="m-btn" id="mLeft">&larr;</div>
+                <div class="m-btn" id="mRight">&rarr;</div>
+            </div>
+            <div class="m-zone" id="mzRight">
+                <div class="m-btn rd" id="mBrake">BRK</div>
+                <div class="m-btn" id="mAccel">ACC</div>
+                <div class="m-btn pk" id="mNitro">NIT</div>
+            </div>
+        </div>
+        
+        <div id="mobileShifters">
+            <div class="m-btn sm" id="mShiftDown" style="pointer-events: auto;">-</div>
+            <div class="m-btn sm" id="mShiftUp" style="pointer-events: auto;">+</div>
+        </div>
+    </div>
+</div>
+
+<script>
+// DATA_PLACEHOLDER
+// SYSTEMS_PLACEHOLDER
+// ENGINE_PLACEHOLDER
+</script>
+</body>
+</html>
