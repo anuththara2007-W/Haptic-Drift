@@ -5,38 +5,40 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover" />
     <title>HAPTIC DRIFT — v4</title>
     <style>
-        /* ===== RESET — because browsers are weird ===== */
+        /* ===== RESET & BASE ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* ===== ROOT — colors & stuff ===== */
         :root {
-            --nb: #00e5ff;
-            --np: #ff00ff;
-            --nr: #ff003c;
-            --ng: #00ff41;
-            --ny: #ffea00;
-            --no: #ff6a00;
-            --bg: #050508;
-            --glass: rgba(10, 10, 18, 0.72);
-            --gbdr: rgba(0, 229, 255, 0.12);
-            --font: 'Inter', -apple-system, system-ui, sans-serif;
+            --bg-primary: #0a0a12;
+            --bg-secondary: #12121c;
+            --bg-panel: rgba(18, 18, 28, 0.85);
+            --text-primary: #f0f0ff;
+            --text-secondary: #8888aa;
+            --text-muted: #555577;
+            --accent: #4a7cf7;
+            --accent-hover: #5f8ef9;
+            --accent-active: #3661d4;
+            --border-light: rgba(255, 255, 255, 0.06);
+            --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.8);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --st: env(safe-area-inset-top, 0px);
             --sb: env(safe-area-inset-bottom, 0px);
             --sl: env(safe-area-inset-left, 0px);
             --sr: env(safe-area-inset-right, 0px);
         }
 
-        /* ===== BASE — fullscreen, fixed, dark ===== */
         html,
         body {
             width: 100%;
             height: 100%;
-            background: var(--bg);
-            color: #fff;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             font-family: var(--font);
             overflow: hidden;
             user-select: none;
@@ -58,11 +60,11 @@
             display: block;
             width: 100%;
             height: 100%;
-            background: var(--bg);
+            background: var(--bg-primary);
             touch-action: none;
         }
 
-        /* ===== UI LAYER — sits on top of canvas ===== */
+        /* ===== UI LAYER ===== */
         #uiLayer {
             position: absolute;
             inset: 0;
@@ -70,7 +72,7 @@
             z-index: 10;
         }
 
-        /* ===== SCREENS — overlays with blur ===== */
+        /* ===== SCREENS ===== */
         .screen {
             position: absolute;
             inset: 0;
@@ -84,17 +86,16 @@
             padding-bottom: calc(clamp(16px, 4vw, 32px) + var(--sb));
             padding-left: calc(clamp(16px, 4vw, 32px) + var(--sl));
             padding-right: calc(clamp(16px, 4vw, 32px) + var(--sr));
-            background: var(--glass);
-            backdrop-filter: blur(28px) saturate(1.3);
-            -webkit-backdrop-filter: blur(28px) saturate(1.3);
-            transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-                transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(10, 10, 18, 0.78);
+            backdrop-filter: blur(18px) saturate(1.2);
+            -webkit-backdrop-filter: blur(18px) saturate(1.2);
+            transition: opacity 0.3s ease, transform 0.3s ease;
             transform-origin: center center;
         }
         .screen.hidden {
             opacity: 0;
             pointer-events: none;
-            transform: scale(0.97);
+            transform: scale(0.96);
             visibility: hidden;
         }
         .screen.show {
@@ -103,20 +104,17 @@
             visibility: visible;
         }
 
-        /* ===== PANEL — glass card ===== */
+        /* ===== PANEL ===== */
         .panel {
-            background: rgba(10, 10, 18, 0.75);
-            border: 1px solid var(--gbdr);
-            border-radius: 22px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
             padding: clamp(18px, 4vw, 28px) clamp(16px, 4vw, 24px);
             display: flex;
             flex-direction: column;
             gap: 12px;
             width: min(420px, calc(100vw - 40px));
-            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.75),
-                inset 0 1px 0 rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            box-shadow: var(--shadow-card);
             max-height: calc(100dvh - 80px - var(--st) - var(--sb));
             overflow-y: auto;
         }
@@ -124,129 +122,130 @@
             align-items: center;
         }
 
-        /* ===== TYPOGRAPHY — titles, subs ===== */
+        /* ===== TYPOGRAPHY ===== */
         h1 {
-            font-size: clamp(3rem, 11vw, 5.2rem);
-            font-weight: 900;
-            font-style: italic;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            line-height: 1;
+            font-size: clamp(2.8rem, 10vw, 4.6rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
             text-align: center;
-            background: linear-gradient(135deg, var(--nb), var(--np));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        h1 .highlight {
+            color: var(--accent);
         }
         h1.red-title {
-            background: linear-gradient(135deg, var(--nr), #ff8800);
-            -webkit-background-clip: text;
-            background-clip: text;
+            color: #e94560;
         }
 
         h2 {
-            font-size: clamp(1.4rem, 4.5vw, 2.2rem);
-            font-weight: 700;
-            color: var(--nb);
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            font-weight: 600;
+            color: var(--text-primary);
             text-align: center;
-            letter-spacing: 1px;
+            letter-spacing: -0.01em;
         }
 
         .sub {
-            color: #777;
+            color: var(--text-secondary);
             font-size: 0.8rem;
             text-align: center;
-            letter-spacing: 3px;
+            letter-spacing: 1px;
             text-transform: uppercase;
             font-weight: 500;
         }
 
-        /* ===== BUTTONS — lots of variations ===== */
+        /* ===== BUTTONS ===== */
         .btn {
-            background: rgba(0, 229, 255, 0.05);
-            border: 2px solid var(--nb);
-            color: var(--nb);
+            background: rgba(74, 124, 247, 0.08);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
             padding: clamp(12px, 2.5vw, 16px) clamp(18px, 3.5vw, 28px);
-            font-size: clamp(0.85rem, 2.5vw, 1rem);
-            font-weight: 700;
-            font-style: italic;
+            font-size: clamp(0.85rem, 2.2vw, 1rem);
+            font-weight: 500;
             cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            border-radius: 14px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            text-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+            border-radius: var(--radius-sm);
+            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
             -webkit-tap-highlight-color: transparent;
-            position: relative;
-            overflow: hidden;
             touch-action: manipulation;
             width: 100%;
             text-align: center;
             backdrop-filter: blur(4px);
+            letter-spacing: 0.3px;
+        }
+        .btn:hover {
+            background: rgba(74, 124, 247, 0.15);
+            border-color: rgba(74, 124, 247, 0.3);
         }
         .btn:active {
-            transform: scale(0.93);
-            background: var(--nb);
-            color: #000;
-            box-shadow: 0 0 50px rgba(0, 229, 255, 0.3);
+            transform: scale(0.97);
+            background: rgba(74, 124, 247, 0.2);
         }
-        .btn.pink {
-            border-color: var(--np);
-            color: var(--np);
-            text-shadow: 0 0 12px rgba(255, 0, 255, 0.2);
-            background: rgba(255, 0, 255, 0.05);
+        .btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            font-weight: 600;
         }
-        .btn.pink:active {
-            background: var(--np);
-            color: #000;
-            box-shadow: 0 0 50px rgba(255, 0, 255, 0.3);
+        .btn.primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
         }
-        .btn.red {
-            border-color: var(--nr);
-            color: var(--nr);
-            text-shadow: 0 0 12px rgba(255, 0, 60, 0.2);
-            background: rgba(255, 0, 60, 0.05);
+        .btn.primary:active {
+            background: var(--accent-active);
         }
-        .btn.red:active {
-            background: var(--nr);
-            color: #000;
+        .btn.secondary {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--border-light);
         }
-        .btn.green {
-            border-color: var(--ng);
-            color: var(--ng);
-            text-shadow: 0 0 12px rgba(0, 255, 65, 0.2);
-            background: rgba(0, 255, 65, 0.05);
+        .btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
         }
-        .btn.green:active {
-            background: var(--ng);
-            color: #000;
+        .btn.danger {
+            background: rgba(233, 69, 96, 0.1);
+            border-color: rgba(233, 69, 96, 0.2);
+            color: #e94560;
         }
-        .btn.yellow {
-            border-color: var(--ny);
-            color: var(--ny);
-            text-shadow: 0 0 12px rgba(255, 234, 0, 0.2);
-            background: rgba(255, 234, 0, 0.05);
+        .btn.danger:hover {
+            background: rgba(233, 69, 96, 0.18);
         }
-        .btn.yellow:active {
-            background: var(--ny);
-            color: #000;
+        .btn.danger:active {
+            background: rgba(233, 69, 96, 0.25);
+        }
+        .btn.success {
+            background: rgba(52, 199, 89, 0.1);
+            border-color: rgba(52, 199, 89, 0.2);
+            color: #34c759;
+        }
+        .btn.success:hover {
+            background: rgba(52, 199, 89, 0.18);
+        }
+        .btn.warning {
+            background: rgba(255, 204, 0, 0.1);
+            border-color: rgba(255, 204, 0, 0.2);
+            color: #ffcc00;
+        }
+        .btn.warning:hover {
+            background: rgba(255, 204, 0, 0.18);
         }
         .btn.sm {
             padding: 9px 16px;
             font-size: 0.8rem;
-            border-radius: 12px;
+            border-radius: var(--radius-sm);
         }
         .btn.xs {
             padding: 5px 11px;
             font-size: 0.7rem;
-            border-radius: 10px;
+            border-radius: 6px;
         }
         .btn:disabled {
-            opacity: 0.35;
+            opacity: 0.4;
             pointer-events: none;
+            filter: grayscale(0.6);
         }
 
-        /* ===== HUD — heads-up display ===== */
+        /* ===== HUD (minimal) ===== */
         #hud {
             position: absolute;
             inset: 0;
@@ -267,21 +266,22 @@
             align-items: flex-start;
             pointer-events: none;
             gap: 8px;
+            z-index: 20;
         }
 
         .hud-cockpit-left {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             align-items: flex-start;
-            width: min(180px, 35vw);
+            width: min(160px, 30vw);
         }
         .hud-cockpit-right {
             display: flex;
             flex-direction: column;
             gap: 8px;
             align-items: flex-end;
-            width: min(180px, 35vw);
+            width: min(160px, 30vw);
         }
         .hud-cockpit-center {
             display: flex;
@@ -291,44 +291,42 @@
         }
 
         .hud-stat {
-            background: rgba(0, 0, 0, 0.55);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            padding: clamp(5px, 1.5vw, 8px) clamp(10px, 2.5vw, 16px);
-            border-radius: 12px;
-            border: 1px solid rgba(0, 229, 255, 0.08);
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
-            min-width: 64px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: clamp(4px, 1vw, 6px) clamp(8px, 2vw, 12px);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-light);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            min-width: 50px;
         }
         .hud-stat.right {
-            border-color: rgba(255, 0, 255, 0.2);
             text-align: right;
         }
 
         .stat-val {
-            font-size: clamp(1rem, 3vw, 1.7rem);
-            font-weight: 900;
-            color: #fff;
+            font-size: clamp(0.9rem, 2.5vw, 1.4rem);
+            font-weight: 700;
+            color: var(--text-primary);
             line-height: 1.2;
         }
         .stat-lbl {
-            font-size: 0.55rem;
-            color: #999;
+            font-size: 0.5rem;
+            color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 600;
+            letter-spacing: 1px;
+            font-weight: 500;
         }
 
-        /* pause button */
         #pauseBtn {
             width: clamp(36px, 8vw, 44px);
             height: clamp(36px, 8vw, 44px);
-            background: rgba(0, 0, 0, 0.55);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid var(--gbdr);
-            border-radius: 12px;
-            color: #fff;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -336,204 +334,32 @@
             pointer-events: auto;
             z-index: 15;
             font-size: 1.1rem;
-            transition: all 0.2s;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        #pauseBtn:hover {
+            background: rgba(74, 124, 247, 0.15);
         }
         #pauseBtn:active {
             transform: scale(0.88);
-            background: rgba(0, 229, 255, 0.15);
-            border-color: var(--nb);
         }
 
-        /* bars */
-        .hud-bars-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            width: 100%;
-        }
-        .bar-row {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .bar-lbl-txt {
-            font-size: 0.5rem;
-            color: rgba(255, 255, 255, 0.45);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            width: 28px;
-            flex-shrink: 0;
-        }
-        .bar-track {
-            flex: 1;
-            height: clamp(7px, 1.5vw, 10px);
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-        }
-        .bar-fill {
-            height: 100%;
-            width: 100%;
-            transform-origin: left;
-            transition: transform 0.08s linear;
-            border-radius: 6px;
-        }
-        #nitroFill {
-            background: linear-gradient(90deg, var(--np), #ff55ff);
-        }
-        #healthFill {
-            background: linear-gradient(90deg, var(--ng), #55ff88);
-        }
-
-        /* gear + rpm */
-        .gear-panel {
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(0, 229, 255, 0.1);
-            border-radius: 14px;
-            padding: 4px 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .gear-val {
-            font-size: 1.2rem;
-            font-weight: 900;
-            font-style: italic;
-            color: var(--nb);
-            line-height: 1;
-        }
-        .gear-lbl {
-            font-size: 0.5rem;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
-        .rpm-track {
-            width: 40px;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .rpm-fill {
-            height: 100%;
-            width: 50%;
-            background: linear-gradient(90deg, var(--nb), var(--ny));
-            border-radius: 4px;
-            transition: width 0.1s linear;
-        }
-
-        /* speedo */
-        #speedometer {
-            background: rgba(0, 0, 0, 0.52);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(0, 229, 255, 0.1);
-            border-radius: 16px;
-            padding: clamp(5px, 1.5vw, 8px) clamp(10px, 2vw, 14px);
-            text-align: right;
-            display: flex;
-            align-items: baseline;
-            gap: 4px;
-        }
-        #speedVal {
-            font-size: clamp(1.8rem, 5vw, 2.5rem);
-            font-weight: 900;
-            font-style: italic;
-            color: #fff;
-            line-height: 1;
-            text-shadow: 0 0 24px rgba(0, 229, 255, 0.25);
-        }
-        #speedUnit {
-            font-size: 0.6rem;
-            color: var(--nb);
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-
-        /* mode badge */
         #modeBadge {
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 229, 255, 0.12);
-            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
             padding: 4px 10px;
-            font-size: 0.55rem;
-            color: var(--nb);
+            font-size: 0.6rem;
+            color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 700;
+            letter-spacing: 1.5px;
+            font-weight: 500;
             pointer-events: none;
         }
         #modeBadge.hidden {
             display: none;
-        }
-
-        /* combo meter */
-        #comboMeter {
-            position: absolute;
-            top: calc(120px + var(--st));
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            opacity: 0;
-            transition: opacity 0.25s, transform 0.18s;
-            pointer-events: none;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            padding: 5px 20px 8px;
-            border-radius: 18px;
-            border: 1px solid rgba(255, 234, 0, 0.1);
-            box-shadow: 0 6px 32px rgba(0, 0, 0, 0.5);
-        }
-        #comboVal {
-            font-size: clamp(1.8rem, 5vw, 3.2rem);
-            font-weight: 900;
-            color: var(--ny);
-            font-style: italic;
-            line-height: 1;
-        }
-        #comboLbl {
-            font-size: 0.55rem;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-weight: 600;
-        }
-
-        /* minimap */
-        #minimap {
-            width: min(160px, 30vw);
-            height: 36px;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            overflow: hidden;
-            pointer-events: none;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
-        }
-        #minimapCanvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        /* damage overlay */
-        #damageOverlay {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            z-index: 5;
-            transition: box-shadow 0.2s;
         }
 
         /* notifications */
@@ -549,26 +375,26 @@
             z-index: 30;
         }
         .notify {
-            background: rgba(6, 6, 14, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-left: 4px solid var(--nb);
-            color: #fff;
+            background: rgba(10, 10, 18, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-left: 3px solid var(--accent);
+            color: var(--text-primary);
             padding: 8px 14px;
-            border-radius: 10px;
+            border-radius: var(--radius-sm);
             font-size: 0.82rem;
             animation: slideIn 0.35s forwards, fadeOut 0.4s 2.7s forwards;
-            box-shadow: 0 8px 36px rgba(0, 0, 0, 0.65);
-            font-weight: 500;
+            box-shadow: var(--shadow-card);
+            font-weight: 400;
         }
         .notify.warn {
-            border-left-color: var(--ny);
+            border-left-color: #ffcc00;
         }
         .notify.danger {
-            border-left-color: var(--nr);
+            border-left-color: #e94560;
         }
         .notify.success {
-            border-left-color: var(--ng);
+            border-left-color: #34c759;
         }
         @keyframes slideIn {
             from {
@@ -593,15 +419,15 @@
             top: calc(110px + var(--st));
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.45);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 0, 255, 0.15);
-            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
             padding: 4px 14px;
-            font-size: 0.65rem;
-            color: rgba(255, 0, 255, 0.8);
+            font-size: 0.6rem;
+            color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.3s;
@@ -634,67 +460,32 @@
             width: min(64px, 16vw);
             height: min(64px, 16vw);
             border-radius: 50%;
-            background: rgba(0, 0, 0, 0.52);
-            border: 2px solid rgba(0, 229, 255, 0.2);
-            color: var(--nb);
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
             font-size: clamp(0.6rem, 1.8vw, 1rem);
-            font-weight: 700;
+            font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
-            transition: all 0.1s;
-            text-transform: uppercase;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            transition: background 0.1s, transform 0.1s;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
         .m-btn:active {
             transform: scale(0.84);
-            background: rgba(0, 229, 255, 0.18);
-            box-shadow: 0 0 32px rgba(0, 229, 255, 0.18);
-            border-color: var(--nb);
-        }
-        .m-btn.pink {
-            border-color: rgba(255, 0, 255, 0.25);
-            color: var(--np);
-        }
-        .m-btn.pink:active {
-            background: rgba(255, 0, 255, 0.18);
-            border-color: var(--np);
-        }
-        .m-btn.red {
-            border-color: rgba(255, 0, 60, 0.25);
-            color: var(--nr);
-        }
-        .m-btn.red:active {
-            background: rgba(255, 0, 60, 0.18);
-            border-color: var(--nr);
-        }
-        .m-btn.green {
-            border-color: rgba(0, 255, 65, 0.25);
-            color: var(--ng);
-        }
-        .m-btn.green:active {
-            background: rgba(0, 255, 65, 0.18);
-            border-color: var(--ng);
-        }
-        .m-btn.yellow {
-            border-color: rgba(255, 234, 0, 0.25);
-            color: var(--ny);
-        }
-        .m-btn.yellow:active {
-            background: rgba(255, 234, 0, 0.18);
-            border-color: var(--ny);
+            background: rgba(74, 124, 247, 0.15);
         }
         .m-btn.wide {
             width: min(80px, 20vw);
-            border-radius: 22px;
+            border-radius: 20px;
             font-size: clamp(0.55rem, 1.5vw, 0.85rem);
         }
 
-        /* ===== SETTINGS MODAL ===== */
+        /* ===== SETTINGS ===== */
         #settings {
             z-index: 50;
         }
@@ -708,9 +499,9 @@
             padding-right: 4px;
         }
         .settings-section {
-            background: rgba(12, 12, 22, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
             padding: 14px 16px;
             display: flex;
             flex-direction: column;
@@ -718,12 +509,12 @@
         }
         .settings-section-title {
             font-size: 0.6rem;
-            color: rgba(255, 255, 255, 0.35);
+            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 3px;
-            font-weight: 700;
+            letter-spacing: 2px;
+            font-weight: 600;
             padding-bottom: 4px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid var(--border-light);
             margin-bottom: 2px;
         }
         .setting-row {
@@ -735,40 +526,43 @@
             padding: 3px 0;
         }
         .setting-row .label {
-            font-size: 0.88rem;
-            font-weight: 500;
+            font-size: 0.85rem;
+            font-weight: 400;
             flex: 1;
-            color: #ccc;
+            color: var(--text-secondary);
         }
         .toggle {
             cursor: pointer;
-            color: var(--nb);
-            font-weight: 700;
-            padding: 3px 12px;
+            color: var(--text-primary);
+            font-weight: 500;
+            padding: 2px 12px;
             border-radius: 20px;
             transition: all 0.2s;
-            font-size: 0.75rem;
-            border: 1px solid rgba(0, 229, 255, 0.2);
-            background: rgba(0, 229, 255, 0.06);
+            font-size: 0.7rem;
+            border: 1px solid var(--border-light);
+            background: rgba(255, 255, 255, 0.04);
             text-transform: uppercase;
             letter-spacing: 1px;
             user-select: none;
             flex-shrink: 0;
         }
         .toggle.off {
-            color: #555;
-            border-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            border-color: rgba(255, 255, 255, 0.04);
             background: transparent;
+        }
+        .toggle:hover {
+            background: rgba(74, 124, 247, 0.08);
         }
         .toggle:active {
             transform: scale(0.92);
         }
 
         input[type="range"] {
-            accent-color: var(--nb);
+            accent-color: var(--accent);
             width: 90px;
             height: 4px;
-            border-radius: 2px;
+            border-radius: 4px;
             background: rgba(255, 255, 255, 0.08);
             -webkit-appearance: none;
             appearance: none;
@@ -780,31 +574,31 @@
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            background: var(--nb);
+            background: var(--accent);
             cursor: pointer;
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
-            border: 2px solid rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--bg-primary);
         }
 
         select {
             background: rgba(0, 0, 0, 0.4);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
             padding: 5px 10px;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             outline: none;
             cursor: pointer;
             flex-shrink: 0;
+            font-family: var(--font);
         }
         select option {
-            background: #111;
+            background: var(--bg-secondary);
         }
 
         /* ===== GARAGE ===== */
         .garage-stats {
             width: 100%;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
         }
         .g-stat-row {
             display: flex;
@@ -816,37 +610,36 @@
         .g-stat-row span {
             min-width: 52px;
             font-weight: 500;
-            color: #ccc;
-            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
         }
         .g-stat-bar {
             flex: 1;
             height: 5px;
             background: rgba(255, 255, 255, 0.06);
-            border-radius: 5px;
+            border-radius: 4px;
             overflow: hidden;
         }
         .g-stat-fill {
             height: 100%;
-            border-radius: 5px;
+            border-radius: 4px;
             transition: width 0.4s;
+            background: var(--accent);
         }
 
         #carPreview {
             width: 130px;
             height: 58px;
             background: rgba(0, 0, 0, 0.3);
-            border: 2px solid var(--nb);
-            border-radius: 14px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-style: italic;
+            font-weight: 600;
             font-size: 0.85rem;
             transition: all 0.3s;
-            text-shadow: 0 0 20px currentColor;
-            backdrop-filter: blur(4px);
+            color: var(--text-primary);
         }
         .car-nav {
             display: flex;
@@ -856,6 +649,29 @@
         .car-nav .btn {
             flex: 1;
             padding: 9px;
+        }
+
+        /* ===== LEADERBOARD ===== */
+        .leaderboard-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .leaderboard-entry .rank {
+            font-weight: 700;
+            color: var(--text-primary);
+            width: 30px;
+        }
+        .leaderboard-entry .name {
+            flex: 1;
+            margin-left: 8px;
+        }
+        .leaderboard-entry .score {
+            font-weight: 500;
+            color: var(--text-primary);
         }
 
         /* ===== GAME OVER ===== */
@@ -869,17 +685,17 @@
             text-align: center;
             background: rgba(0, 0, 0, 0.2);
             padding: 7px 10px;
-            border-radius: 10px;
+            border-radius: var(--radius-sm);
             flex: 1;
         }
         .go-stat .num {
             font-size: 1.6rem;
-            font-weight: 900;
+            font-weight: 700;
             line-height: 1.2;
         }
         .go-stat .lbl {
             font-size: 0.55rem;
-            color: #777;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1.5px;
         }
@@ -889,7 +705,7 @@
             position: absolute;
             inset: 0;
             z-index: 10000;
-            background: var(--bg);
+            background: var(--bg-primary);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -902,12 +718,12 @@
             pointer-events: none;
         }
         .loader-ring {
-            width: 56px;
-            height: 56px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            border: 3px solid rgba(0, 229, 255, 0.08);
-            border-top-color: var(--nb);
-            animation: spin 0.75s linear infinite;
+            border: 3px solid rgba(255, 255, 255, 0.06);
+            border-top-color: var(--accent);
+            animation: spin 0.8s linear infinite;
         }
         @keyframes spin {
             to {
@@ -915,9 +731,9 @@
             }
         }
         .loader-text {
-            color: #444;
-            font-size: 0.75rem;
-            letter-spacing: 6px;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            letter-spacing: 4px;
             text-transform: uppercase;
         }
 
@@ -926,14 +742,14 @@
             position: absolute;
             inset: 0;
             z-index: 9999;
-            background: rgba(5, 5, 8, 0.97);
+            background: var(--bg-primary);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 20px;
-            color: var(--nb);
-            font-size: 1.2rem;
+            color: var(--text-primary);
+            font-size: 1.1rem;
             text-align: center;
             padding: 20px;
         }
@@ -950,22 +766,23 @@
             }
         }
         #rotateIcon {
-            font-size: 3.5rem;
+            font-size: 3rem;
             animation: rotAnim 2s ease-in-out infinite;
         }
 
-        /* ===== BG PARTICLES ===== */
+        /* ===== BG PARTICLES (subtle) ===== */
         #particles-bg {
             position: fixed;
             inset: 0;
             pointer-events: none;
             z-index: 0;
             overflow: hidden;
+            opacity: 0.3;
         }
         .particle {
             position: absolute;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(0, 229, 255, 0.12), transparent);
+            background: rgba(255, 255, 255, 0.04);
             animation: floatP linear infinite;
             opacity: 0;
         }
@@ -988,48 +805,37 @@
 
         /* ===== COLOR HELPERS ===== */
         .c-blue {
-            color: var(--nb);
-            text-shadow: 0 0 18px rgba(0, 229, 255, 0.3);
+            color: var(--accent);
         }
         .c-pink {
-            color: var(--np);
-            text-shadow: 0 0 18px rgba(255, 0, 255, 0.3);
+            color: #e94560;
         }
         .c-yellow {
-            color: var(--ny);
-            text-shadow: 0 0 18px rgba(255, 234, 0, 0.3);
+            color: #ffcc00;
         }
         .c-green {
-            color: var(--ng);
-            text-shadow: 0 0 18px rgba(0, 255, 65, 0.3);
+            color: #34c759;
         }
         .c-red {
-            color: var(--nr);
-            text-shadow: 0 0 18px rgba(255, 0, 60, 0.3);
+            color: #e94560;
         }
 
-        /* ===== SCROLLBAR — subtle ===== */
+        /* ===== SCROLLBAR ===== */
         ::-webkit-scrollbar {
-            width: 3px;
+            width: 4px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.01);
         }
         ::-webkit-scrollbar-thumb {
-            background: var(--nb);
-            border-radius: 10px;
+            background: var(--text-muted);
+            border-radius: 4px;
         }
 
-        /* ===== RESPONSIVE — smaller screens ===== */
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 480px) {
             .panel {
-                border-radius: 18px;
-            }
-            #speedVal {
-                font-size: 2rem;
-            }
-            .go-stat .num {
-                font-size: 1.3rem;
+                border-radius: var(--radius-sm);
             }
         }
         @media (min-width: 768px) {
@@ -1049,13 +855,13 @@
         <div id="particles-bg"></div>
         <div id="loading">
             <div class="loader-ring"></div>
-            <div class="loader-text">Initializing</div>
+            <div class="loader-text">Loading</div>
         </div>
         <canvas id="gameCanvas"></canvas>
         <div id="damageOverlay"></div>
 
         <div id="uiLayer">
-            <!-- HUD -->
+            <!-- HUD (minimal) -->
             <div id="hud">
                 <div class="hud-top">
                     <div class="hud-cockpit-left">
@@ -1063,57 +869,42 @@
                             <span class="stat-lbl">Score</span>
                             <div class="stat-val c-blue" id="hudScore">0</div>
                         </div>
-                        <div class="hud-bars-group">
-                            <div class="bar-row">
-                                <span class="bar-lbl-txt">HP</span>
-                                <div class="bar-track"><div class="bar-fill" id="healthFill"></div></div>
-                            </div>
-                            <div class="bar-row">
-                                <span class="bar-lbl-txt">NIT</span>
-                                <div class="bar-track"><div class="bar-fill" id="nitroFill"></div></div>
-                            </div>
+                        <div class="hud-stat">
+                            <span class="stat-lbl">Dist</span>
+                            <div class="stat-val c-pink" id="hudDist">0m</div>
                         </div>
                     </div>
                     <div class="hud-cockpit-center">
-                        <div id="minimap"><canvas id="minimapCanvas"></canvas></div>
                         <div id="pauseBtn">⏸</div>
+                        <div id="modeBadge" class="hidden">MODE</div>
                     </div>
                     <div class="hud-cockpit-right">
                         <div class="hud-stat right">
-                            <span class="stat-lbl" id="hudTimeLabel">Dist</span>
-                            <div class="stat-val c-pink" id="hudDist">0m</div>
+                            <span class="stat-lbl">Pos</span>
+                            <div class="stat-val" id="hudPos">-</div>
                         </div>
-                        <div id="speedometer">
-                            <span id="speedVal">0</span>
-                            <span id="speedUnit">KM/H</span>
+                        <div class="hud-stat right">
+                            <span class="stat-lbl">Lap</span>
+                            <div class="stat-val" id="hudLap">0</div>
                         </div>
-                        <div class="gear-panel">
-                            <span class="gear-lbl">Gear</span>
-                            <span class="gear-val" id="gearVal">1</span>
-                            <div class="rpm-track"><div class="rpm-fill" id="rpmFill"></div></div>
-                        </div>
-                        <div id="modeBadge" class="hidden">MODE</div>
                     </div>
                 </div>
-                <div id="comboMeter">
-                    <div id="comboVal">x1.0</div>
-                    <div id="comboLbl">Drift Chain</div>
-                </div>
-                <div id="ghostPanel">Ghost +0.0s</div>
                 <div id="notificationBox"></div>
+                <div id="ghostPanel">Ghost +0.0s</div>
             </div>
 
             <!-- MAIN MENU -->
             <div id="mainMenu" class="screen show">
                 <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;width:100%;gap:16px">
-                    <h1>HAPTIC<br />DRIFT</h1>
+                    <h1>HAPTIC<br /><span class="highlight">DRIFT</span></h1>
                     <p class="sub">v4 · Premium</p>
                     <div class="panel center">
-                        <button class="btn" id="btnPlay">▶ Drive</button>
-                        <button class="btn pink" id="btnGarage">Garage</button>
-                        <button class="btn red" id="btnSettings">Settings</button>
+                        <button class="btn primary" id="btnPlay">Drive</button>
+                        <button class="btn secondary" id="btnGarage">Garage</button>
+                        <button class="btn secondary" id="btnLeaderboard">Leaderboard</button>
+                        <button class="btn secondary" id="btnSettings">Settings</button>
                     </div>
-                    <div style="color:#555;font-size:.68rem;letter-spacing:2px;text-transform:uppercase;text-align:center;background:rgba(0,0,0,.2);padding:5px 16px;border-radius:20px;backdrop-filter:blur(4px)">
+                    <div style="color:var(--text-muted);font-size:0.65rem;letter-spacing:1px;text-transform:uppercase;text-align:center;background:rgba(0,0,0,0.2);padding:5px 16px;border-radius:20px;backdrop-filter:blur(4px)">
                         LVL <span id="menuLvl">0</span> · XP <span id="menuXp">0</span>
                     </div>
                 </div>
@@ -1124,14 +915,14 @@
                 <h2>Select Mode</h2>
                 <div style="margin-top:12px"></div>
                 <div class="panel center">
-                    <button class="btn mode-btn" data-mode="race">🏁 Race Mode</button>
-                    <button class="btn mode-btn" data-mode="arcade">🔥 Arcade Endless</button>
-                    <button class="btn mode-btn" data-mode="timeTrial">⏱ Time Trial</button>
-                    <button class="btn mode-btn" data-mode="freeDrive">🌐 Free Drive</button>
-                    <button class="btn yellow mode-btn" data-mode="ghost">👻 Ghost Challenge</button>
-                    <button class="btn pink mode-btn" data-mode="drift">💨 Drift Mode</button>
-                    <button class="btn red mode-btn" data-mode="traffic">🚦 Traffic Survival</button>
-                    <button class="btn sm" id="btnModeBack">← Back</button>
+                    <button class="btn secondary mode-btn" data-mode="race">Race</button>
+                    <button class="btn secondary mode-btn" data-mode="arcade">Arcade</button>
+                    <button class="btn secondary mode-btn" data-mode="timeTrial">Time Trial</button>
+                    <button class="btn secondary mode-btn" data-mode="freeDrive">Free Drive</button>
+                    <button class="btn secondary mode-btn" data-mode="ghost">Ghost</button>
+                    <button class="btn secondary mode-btn" data-mode="drift">Drift</button>
+                    <button class="btn secondary mode-btn" data-mode="traffic">Traffic</button>
+                    <button class="btn secondary sm" id="btnModeBack">← Back</button>
                 </div>
             </div>
 
@@ -1144,23 +935,42 @@
                     <div class="garage-stats">
                         <div class="g-stat-row">
                             <span>Speed</span>
-                            <div class="g-stat-bar"><div class="g-stat-fill" id="gStatSpd" style="width:50%;background:var(--nb)"></div></div>
+                            <div class="g-stat-bar"><div class="g-stat-fill" id="gStatSpd" style="width:50%"></div></div>
                         </div>
                         <div class="g-stat-row">
                             <span>Accel</span>
-                            <div class="g-stat-bar"><div class="g-stat-fill" id="gStatAcc" style="width:50%;background:var(--nb)"></div></div>
+                            <div class="g-stat-bar"><div class="g-stat-fill" id="gStatAcc" style="width:50%"></div></div>
                         </div>
                         <div class="g-stat-row">
                             <span>Handling</span>
-                            <div class="g-stat-bar"><div class="g-stat-fill" id="gStatHnd" style="width:50%;background:var(--nb)"></div></div>
+                            <div class="g-stat-bar"><div class="g-stat-fill" id="gStatHnd" style="width:50%"></div></div>
                         </div>
                     </div>
                     <div class="car-nav">
-                        <button class="btn sm" id="btnCarPrev">‹ Prev</button>
-                        <button class="btn sm" id="btnCarNext">Next ›</button>
+                        <button class="btn secondary sm" id="btnCarPrev">‹ Prev</button>
+                        <button class="btn secondary sm" id="btnCarNext">Next ›</button>
                     </div>
-                    <button class="btn green sm" id="btnGarageEquip">Equip</button>
-                    <button class="btn red sm" id="btnGarageBack">← Back</button>
+                    <button class="btn success sm" id="btnGarageEquip">Equip</button>
+                    <button class="btn secondary sm" id="btnGarageBack">← Back</button>
+                </div>
+            </div>
+
+            <!-- LEADERBOARD -->
+            <div id="leaderboard" class="screen hidden">
+                <h2>Leaderboard</h2>
+                <div style="margin-top:12px"></div>
+                <div class="panel">
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:8px;">
+                        <button class="btn sm lb-mode" data-mode="race">Race</button>
+                        <button class="btn sm lb-mode" data-mode="arcade">Arcade</button>
+                        <button class="btn sm lb-mode" data-mode="timeTrial">Time Trial</button>
+                        <button class="btn sm lb-mode" data-mode="drift">Drift</button>
+                        <button class="btn sm lb-mode" data-mode="traffic">Traffic</button>
+                    </div>
+                    <div id="lbList" style="max-height:300px;overflow-y:auto;">
+                        <div class="leaderboard-entry"><span class="rank">1</span><span class="name">Player</span><span class="score">0</span></div>
+                    </div>
+                    <button class="btn secondary sm" id="btnLbBack">← Back</button>
                 </div>
             </div>
 
@@ -1198,7 +1008,7 @@
                             </div>
                         </div>
                     </div>
-                    <button class="btn red sm" id="btnSettingsBack" style="width:100%;margin-top:10px;">← Back</button>
+                    <button class="btn secondary sm" id="btnSettingsBack" style="width:100%;margin-top:10px;">← Back</button>
                 </div>
             </div>
 
@@ -1207,9 +1017,9 @@
                 <h2>Paused</h2>
                 <div style="margin-top:12px"></div>
                 <div class="panel center">
-                    <button class="btn" id="btnResume">▶ Resume</button>
-                    <button class="btn pink" id="btnRestart">↻ Restart</button>
-                    <button class="btn red" id="btnQuit">✕ Quit</button>
+                    <button class="btn primary" id="btnResume">▶ Resume</button>
+                    <button class="btn secondary" id="btnRestart">↻ Restart</button>
+                    <button class="btn danger" id="btnQuit">✕ Quit</button>
                 </div>
             </div>
 
@@ -1218,14 +1028,14 @@
                 <h1 class="red-title">WRECKED</h1>
                 <div style="margin-top:12px"></div>
                 <div class="panel center">
-                    <h2 id="goTitle" style="font-size:1.1rem;color:#ccc">Run Over</h2>
+                    <h2 id="goTitle" style="font-size:1.1rem;color:var(--text-secondary)">Run Over</h2>
                     <div class="go-stats">
                         <div class="go-stat"><div class="num c-blue" id="goScore">0</div><div class="lbl">Score</div></div>
                         <div class="go-stat"><div class="num c-pink" id="goDist">0m</div><div class="lbl">Dist</div></div>
                         <div class="go-stat"><div class="num c-yellow" id="goXp">+0</div><div class="lbl">XP</div></div>
                     </div>
-                    <button class="btn" id="btnGoRestart">↻ Try Again</button>
-                    <button class="btn red" id="btnGoMenu">✕ Menu</button>
+                    <button class="btn primary" id="btnGoRestart">↻ Try Again</button>
+                    <button class="btn secondary" id="btnGoMenu">✕ Menu</button>
                 </div>
             </div>
 
@@ -1239,9 +1049,9 @@
                     <div class="m-btn" id="mRight">▶</div>
                 </div>
                 <div class="m-zone">
-                    <div class="m-btn red wide" id="mBrake">BRK</div>
-                    <div class="m-btn green wide" id="mAccel">ACC</div>
-                    <div class="m-btn pink" id="mNitro">NIT</div>
+                    <div class="m-btn wide" id="mBrake">BRK</div>
+                    <div class="m-btn wide" id="mAccel">ACC</div>
+                    <div class="m-btn" id="mNitro">NIT</div>
                 </div>
             </div>
         </div>
@@ -1249,8 +1059,7 @@
 
     <script>
         /* ================================================================
-           HAPTIC DRIFT v4 — PREMIUM MOBILE RACING
-           UI/Camera/Modes overhaul · Single file
+           HAPTIC DRIFT v4 — Modern Cockpit with Distinct Modes
            ================================================================ */
 
         // ── STORE ──────────────────────────────────────────────────────
@@ -1260,6 +1069,7 @@
             unlockedCars: [0],
             settings: { haptics: true, intensity: 1, audio: true, gyro: false, camera: 'chase', fps: 120 },
             stats: { totalScore: 0, totalDist: 0, races: 0, maxSpeed: 0 },
+            leaderboard: { race: [], arcade: [], timeTrial: [], drift: [], traffic: [] },
             save() { try { localStorage.setItem('hd_v4', JSON.stringify(this)) } catch (_) {} },
             load() { try { const d = localStorage.getItem('hd_v4'); if (d) { const p = JSON.parse(d);
                     Object.assign(this, p) } } catch (_) {} }
@@ -1267,9 +1077,9 @@
         STORE.load();
 
         const CARS = [
-            { name: 'NEON X', color: '#00e5ff', spd: 1400, acc: 1000, hnd: 3.0, desc: 'Balanced starter' },
-            { name: 'PULSE GT', color: '#ff00ff', spd: 1700, acc: 850, hnd: 2.7, desc: 'Drift machine' },
-            { name: 'HELLFIRE', color: '#ff003c', spd: 1900, acc: 1300, hnd: 2.4, desc: 'Raw power' }
+            { name: 'NEON X', color: '#4a7cf7', spd: 1400, acc: 1000, hnd: 3.0, desc: 'Balanced starter' },
+            { name: 'PULSE GT', color: '#e94560', spd: 1700, acc: 850, hnd: 2.7, desc: 'Drift machine' },
+            { name: 'HELLFIRE', color: '#ff6b35', spd: 1900, acc: 1300, hnd: 2.4, desc: 'Raw power' }
         ];
 
         // ── HAPTICS ────────────────────────────────────────────────────
@@ -1424,8 +1234,6 @@
         // ── CANVAS SETUP ───────────────────────────────────────────────
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d', { alpha: false });
-        const mmCanvas = document.getElementById('minimapCanvas');
-        const mmCtx = mmCanvas.getContext('2d');
         let W = 0,
             H = 0;
 
@@ -1434,8 +1242,6 @@
             H = window.innerHeight;
             canvas.width = W;
             canvas.height = H;
-            mmCanvas.width = 160;
-            mmCanvas.height = 36;
             const isPort = H > W;
             document.getElementById('rotateDevice').classList.toggle('show', isPort);
         }
@@ -1443,7 +1249,7 @@
         resize();
 
         // ── UI MANAGER ─────────────────────────────────────────────────
-        const SCREENS = ['mainMenu', 'modeSelect', 'garage', 'settings', 'pauseMenu', 'gameOver', 'hud'];
+        const SCREENS = ['mainMenu', 'modeSelect', 'garage', 'leaderboard', 'settings', 'pauseMenu', 'gameOver', 'hud'];
         const UI = {
             current: null,
             show(id) {
@@ -1486,8 +1292,11 @@
             comboTimer: 0,
             topSpeed: 0,
             driftScore: 0,
+            position: 1,
+            lap: 0,
+            totalLaps: 3,
             car: { x: 0, y: 0, vx: 0, vy: 0, angle: -Math.PI / 2, speed: 0, rpm: 0, gear: 1, gearTimer: 0 },
-            cam: { x: 0, y: 0, shake: 0, speedOffsetY: 0 },
+            cam: { x: 0, y: 0, shake: 0 },
             worldSeed: 0,
             weather: 'clear',
             timeOfDay: 12,
@@ -1504,7 +1313,12 @@
             _nitroWasOn: false,
             _gearWas: 1,
             _hapticTimer: 0,
-            _healthWarn: false
+            _healthWarn: false,
+            _driftBoost: false,
+            checkpointY: 0,
+            lapStartY: 0,
+            // traffic mode specific
+            trafficTimer: 0
         };
 
         // ── WORLD GEN ──────────────────────────────────────────────────
@@ -1527,24 +1341,26 @@
                 const cx = getRoadCenter(G.spawnY),
                     rw = getRoadWidth();
                 const count = Math.floor(Math.random() * 3) + 1;
-                for (let i = 0; i < count; i++) {
-                    const trafficOnly = G.mode === 'traffic';
-                    const isCar = trafficOnly || (G.mode === 'arcade' && Math.random() > 0.6);
+                // Traffic mode: spawn more cars
+                const isTraffic = G.mode === 'traffic';
+                const extraCount = isTraffic ? 2 : 0;
+                for (let i = 0; i < count + extraCount; i++) {
+                    const isCar = (G.mode === 'traffic') || (G.mode === 'arcade' && Math.random() > 0.6);
                     G.objects.push({
                         x: cx + (Math.random() - .5) * (rw - 80),
-                        y: G.spawnY - Math.random() * 600,
+                        y: G.spawnY - Math.random() * 600 - (isTraffic ? Math.random() * 400 : 0),
                         s: 28 + Math.random() * 18,
                         type: isCar ? 'traffic' : 'block',
-                        color: ['#ff003c', '#ff6a00', '#ffea00', '#00e5ff'][Math.floor(Math.random() * 4)],
+                        color: ['#e94560', '#ff6b35', '#ffcc00', '#4a7cf7'][Math.floor(Math.random() * 4)],
                         vy: isCar ? -250 - Math.random() * 350 : 0
                     });
                 }
                 if (Math.random() > .82) G.objects.push({ x: cx + (Math.random() - .5) * (rw - 80), y: G.spawnY - Math
-                        .random() * 500, s: 22, type: 'nitro', color: '#00e5ff' });
+                        .random() * 500, s: 22, type: 'nitro', color: '#4a7cf7' });
                 if (Math.random() > .6) { const side = Math.random() > .5 ? 1 : -1;
                     G.objects.push({ x: cx + side * (rw / 2 + 30 + Math.random() * 80), y: G.spawnY - Math.random() *
-                            400, s: 20 + Math.random() * 40, type: 'tree', color: ['#00ff41', '#44ff88',
-                            '#00cc55'
+                            400, s: 20 + Math.random() * 40, type: 'tree', color: ['#34c759', '#4cd964',
+                            '#30b350'
                         ][Math.floor(Math.random() * 3)] }) }
                 G.spawnY -= 700 + Math.random() * 900;
             }
@@ -1569,6 +1385,10 @@
                     gp.style.opacity = '1';
                     gp.textContent = 'Ghost ' + (G.ghostDelta > 0 ? '+' : '') + (G.ghostDelta.toFixed(1)) + 's';
                 }
+            }
+            for (let i = 0; i < G.aiCars.length; i++) {
+                const ai = G.aiCars[i];
+                G.ghosts.push({ x: ai.x, y: ai.y, angle: ai.angle, speed: ai.speed, isAI: true });
             }
         }
 
@@ -1600,6 +1420,10 @@
             G.comboTimer = 0;
             G.topSpeed = 0;
             G.driftScore = 0;
+            G.position = 1;
+            G.lap = 0;
+            G.lapStartY = 0;
+            G.checkpointY = 0;
             G.car.x = W / 2;
             G.car.y = 0;
             G.car.vx = 0;
@@ -1612,7 +1436,6 @@
             G.cam.x = 0;
             G.cam.y = 0;
             G.cam.shake = 0;
-            G.cam.speedOffsetY = 0;
             G.worldSeed = Math.random() * 1000;
             G.weather = Math.random() > .72 ? 'rain' : 'clear';
             G.timeOfDay = 6 + Math.random() * 10;
@@ -1627,54 +1450,104 @@
             G._nitroWasOn = false;
             G._gearWas = 1;
             G._healthWarn = false;
+            G._driftBoost = false;
+            G.aiCars = [];
+            G.trafficTimer = 0;
+
+            // Mode-specific setup
+            switch (mode) {
+                case 'race':
+                    G.totalLaps = 3;
+                    G.lapStartY = 0;
+                    for (let i = 0; i < 5; i++) {
+                        G.aiCars.push({
+                            x: getRoadCenter(-400 - i * 120) + (Math.random() - 0.5) * 80,
+                            y: -400 - i * 120,
+                            vx: 0,
+                            vy: -900 - Math.random() * 300,
+                            angle: -Math.PI / 2,
+                            speed: 800 + Math.random() * 400,
+                            color: ['#e94560', '#ff6b35', '#ffcc00', '#34c759', '#4a7cf7'][i % 5],
+                            lane: (i % 3) - 1,
+                            aiTimer: 0,
+                            targetSpeed: 800 + Math.random() * 400
+                        });
+                    }
+                    G.checkpointY = -1000;
+                    break;
+                case 'arcade':
+                    // endless, no laps
+                    break;
+                case 'timeTrial':
+                    G.time = 60;
+                    break;
+                case 'freeDrive':
+                    // no scoring, no obstacles?
+                    break;
+                case 'ghost':
+                    for (let i = 0; i < 3; i++) {
+                        const offset = 200 + i * 150;
+                        G.aiCars.push({
+                            x: getRoadCenter(-offset) + (Math.random() - 0.5) * 100,
+                            y: -offset,
+                            vx: 0,
+                            vy: -900 - Math.random() * 300,
+                            angle: -Math.PI / 2,
+                            speed: 800 + Math.random() * 300,
+                            color: ['#e94560', '#ffcc00', '#34c759'][i],
+                            lane: (i % 3) - 1,
+                            aiTimer: 0,
+                            targetSpeed: 800 + Math.random() * 300
+                        });
+                    }
+                    break;
+                case 'drift':
+                    // drift scoring
+                    break;
+                case 'traffic':
+                    // heavy traffic, health drain
+                    G.health = 100;
+                    break;
+            }
 
             const mb = document.getElementById('modeBadge');
-            const hl = document.getElementById('hudTimeLabel');
             mb.classList.remove('hidden');
             switch (mode) {
                 case 'race':
                     mb.textContent = 'Race';
-                    mb.style.color = 'var(--nb)';
-                    hl.textContent = 'Pos';
+                    mb.style.color = 'var(--accent)';
                     break;
                 case 'arcade':
                     mb.textContent = 'Arcade';
-                    mb.style.color = 'var(--nb)';
-                    hl.textContent = 'Dist';
+                    mb.style.color = 'var(--accent)';
                     break;
                 case 'timeTrial':
                     mb.textContent = 'Time Trial';
-                    mb.style.color = 'var(--ny)';
-                    hl.textContent = 'Time';
+                    mb.style.color = '#ffcc00';
                     break;
                 case 'freeDrive':
                     mb.textContent = 'Free Drive';
-                    mb.style.color = 'var(--ng)';
-                    hl.textContent = 'Dist';
+                    mb.style.color = '#34c759';
                     mb.classList.add('hidden');
                     break;
                 case 'ghost':
                     mb.textContent = 'Ghost';
-                    mb.style.color = 'var(--np)';
-                    hl.textContent = 'Dist';
+                    mb.style.color = '#e94560';
                     break;
                 case 'drift':
                     mb.textContent = 'Drift';
-                    mb.style.color = 'var(--np)';
-                    hl.textContent = 'Drift Pts';
+                    mb.style.color = '#e94560';
                     break;
                 case 'traffic':
                     mb.textContent = 'Traffic';
-                    mb.style.color = 'var(--nr)';
-                    hl.textContent = 'Dist';
+                    mb.style.color = '#e94560';
                     break;
             }
             document.getElementById('ghostPanel').style.opacity = '0';
 
             UI.show('hud');
             document.getElementById('damageOverlay').style.boxShadow = 'none';
-            document.getElementById('comboMeter').style.opacity = '0';
-            if (G.weather === 'rain') UI.notify('🌧 Rain — Low grip', 'warn');
+            if (G.weather === 'rain') UI.notify('Rain - Low grip', 'warn');
 
             G.lastTime = performance.now();
             if (G.loopId) cancelAnimationFrame(G.loopId);
@@ -1700,6 +1573,15 @@
                 brake = Input.brake(),
                 nitro = Input.nitro();
 
+            let driftRechargeBonus = 0;
+            const isDrifting = (car.speed > cd.spd * .35 && Math.abs(steer) > .08 && !isOffroad);
+            if (isDrifting) {
+                driftRechargeBonus = 2.5;
+                G._driftBoost = true;
+            } else {
+                G._driftBoost = false;
+            }
+
             if (nitro && G.nitro > 0) {
                 G.nitro -= dt * 22;
                 if (!G._nitroWasOn) { Haptics.nitroOn();
@@ -1708,7 +1590,7 @@
             } else {
                 if (G._nitroWasOn) Haptics.nitroOff();
                 G._nitroWasOn = false;
-                G.nitro = Math.min(100, G.nitro + dt * 3.5);
+                G.nitro = Math.min(100, G.nitro + dt * 3.5 * (1 + driftRechargeBonus));
             }
             const nitroActive = nitro && G.nitro > 0;
             const maxS = nitroActive ? cd.spd * 1.65 : cd.spd;
@@ -1745,10 +1627,8 @@
 
             car.angle += steer * cd.hnd * Math.min(car.speed / 350, 1.4) * dt;
 
-            let isDrifting = false,
-                curGrip = grip;
-            if (car.speed > cd.spd * .35 && Math.abs(steer) > .08 && !isOffroad) { curGrip = dGrip;
-                isDrifting = true }
+            let curGrip = grip;
+            if (isDrifting) curGrip = dGrip;
 
             if (car.speed > 10) {
                 let vAng = Math.atan2(car.vy, car.vx);
@@ -1766,33 +1646,110 @@
             car.x += car.vx * dt;
             car.y += car.vy * dt;
 
-            const comboEl = document.getElementById('comboMeter');
-            if (isDrifting && car.speed > 250) {
-                G.combo += dt * 1.2;
-                G.comboTimer = 2.5;
-                comboEl.style.opacity = '1';
-                document.getElementById('comboVal').textContent = 'x' + (1 + G.combo * .15).toFixed(1);
-                comboEl.style.transform = 'translateX(-50%) scale(' + (1 + Math.min(G.combo * .04, .4)) + ')';
-                if (G.mode === 'drift') G.driftScore += dt * G.combo * 10;
-            } else {
-                G.comboTimer -= dt;
-                if (G.comboTimer <= 0) {
-                    if (G.combo > .5) { const b = Math.floor(G.combo * 120);
-                        G.score += b;
-                        UI.notify('🔥 Drift bonus +' + b, 'success') }
-                    G.combo = 0;
-                    comboEl.style.opacity = '0';
+            // ---- MODE-SPECIFIC LOGIC ----
+
+            // Drift mode: only drift scoring
+            if (G.mode === 'drift') {
+                if (isDrifting && car.speed > 250) {
+                    G.combo += dt * 1.2;
+                    G.comboTimer = 2.5;
+                    G.driftScore += dt * G.combo * 10;
+                    G.score = Math.floor(G.driftScore);
+                } else {
+                    G.comboTimer -= dt;
+                    if (G.comboTimer <= 0) {
+                        if (G.combo > .5) { const b = Math.floor(G.combo * 120);
+                            G.driftScore += b;
+                            UI.notify('Drift bonus +' + b, 'success') }
+                        G.combo = 0;
+                    }
                 }
             }
 
+            // Arcade: score from distance and near misses
+            if (G.mode === 'arcade') {
+                G.score += car.speed * dt * .005;
+            }
+
+            // Time Trial: score from distance, time limit
+            if (G.mode === 'timeTrial') {
+                G.time -= dt;
+                if (G.time <= 0) { gameOver('Time Up'); return }
+                G.score = Math.floor(G.dist / 10);
+            }
+
+            // Free Drive: no scoring, no health drain
+            if (G.mode === 'freeDrive') {
+                G.health = 100; // keep full health
+                G.nitro = 100;
+                G.score = 0;
+            }
+
+            // Traffic: health drain on near misses, many cars
+            if (G.mode === 'traffic') {
+                if (G.health < 30 && !G._healthWarn) { G._healthWarn = true;
+                    UI.notify('Low integrity!', 'danger') }
+                if (G.health > 40) G._healthWarn = false;
+                if (G.health <= 0) { gameOver('Crashed'); return }
+                // Spawn more cars dynamically
+                G.trafficTimer += dt;
+                if (G.trafficTimer > 0.5) {
+                    G.trafficTimer = 0;
+                    const cx2 = getRoadCenter(car.y - 1200);
+                    G.objects.push({
+                        x: cx2 + (Math.random() - .5) * (getRoadWidth(car.y - 1200) - 80),
+                        y: car.y - 1200 - Math.random() * 200,
+                        s: 28 + Math.random() * 18,
+                        type: 'traffic',
+                        color: ['#e94560', '#ff6b35', '#ffcc00', '#4a7cf7'][Math.floor(Math.random() * 4)],
+                        vy: -250 - Math.random() * 350
+                    });
+                }
+            }
+
+            // Race: lap counting, position
+            if (G.mode === 'race') {
+                if (car.y < G.checkpointY - 1000) {
+                    G.checkpointY = car.y;
+                    G.lap++;
+                    if (G.lap >= G.totalLaps) {
+                        gameOver('Race Finished');
+                        return;
+                    }
+                    UI.notify('Lap ' + G.lap + '/' + G.totalLaps, 'success');
+                }
+                let pos = 1;
+                for (const ai of G.aiCars) {
+                    if (ai.y < car.y) pos++;
+                }
+                G.position = pos;
+                document.getElementById('hudPos').textContent = pos;
+                document.getElementById('hudLap').textContent = G.lap + '/' + G.totalLaps;
+                // Score from distance
+                G.score = Math.floor(G.dist / 2);
+            } else {
+                document.getElementById('hudPos').textContent = '-';
+                document.getElementById('hudLap').textContent = '0';
+            }
+
+            // Ghost: compare with ghost
+            if (G.mode === 'ghost') {
+                G.score = Math.floor(G.dist);
+            }
+
+            // ---- AI opponents (race, ghost) ----
             for (let i = G.aiCars.length - 1; i >= 0; i--) {
                 let ai = G.aiCars[i];
-                ai.y += ai.vy * dt;
-                ai.x += ai.vx * dt;
                 const cxRoad = getRoadCenter(ai.y);
                 const targetX = cxRoad + ai.lane * 110;
                 ai.vx += (targetX - ai.x) * 2 * dt;
                 ai.vx *= 0.95;
+                ai.vy += (ai.targetSpeed - ai.speed) * 0.1 * dt;
+                ai.vy = Math.min(ai.vy, -600);
+                ai.speed = Math.min(Math.abs(ai.vy), 1500);
+                ai.y += ai.vy * dt;
+                ai.x += ai.vx * dt;
+                ai.angle = -Math.PI / 2 + (ai.vx / 2000);
 
                 const d = Math.hypot(car.x - ai.x, car.y - ai.y);
                 if (d < 45 && car.y > ai.y - 100) {
@@ -1801,30 +1758,27 @@
                     G.cam.shake = 10;
                     Haptics.collision();
                 }
-                if (ai.y > G.cam.y + 1500) G.aiCars.splice(i, 1);
+                if (ai.y > G.cam.y + 1500) {
+                    G.aiCars.splice(i, 1);
+                }
             }
 
-            if (G.mode === 'race' && G.aiCars.length < 6 && Math.random() < 0.03) {
-                G.aiCars.push({
-                    x: getRoadCenter(G.cam.y - 3000) + (Math.floor(Math.random() * 3) - 1) * 110,
-                    y: G.cam.y - 3000 - Math.random() * 800,
-                    vx: 0,
-                    vy: -1200 - Math.random() * 1000,
-                    angle: -Math.PI / 2,
-                    speed: 1200,
-                    color: ['#00e5ff', '#ff00ff', '#ffea00', '#00ff41'][Math.floor(Math.random() * 4)],
-                    lane: Math.floor(Math.random() * 3) - 1
-                });
+            // ---- Shared scoring (distance) ----
+            G.dist += (-car.vy) * dt * .01;
+            if (G.mode !== 'timeTrial' && G.mode !== 'drift' && G.mode !== 'race' && G.mode !== 'arcade') {
+                // For free drive and ghost, we may not need extra score
             }
 
+            // ---- Camera ----
             const tCX = car.x - W / 2,
-                tCY = car.y - H * .82;
+                tCY = car.y - H * .7;
             G.cam.x += (tCX - G.cam.x) * 4.5 * dt;
             G.cam.y += (tCY - G.cam.y) * 4.5 * dt;
             if (G.cam.shake > 0) { G.cam.x += (Math.random() - .5) * G.cam.shake * 0.4;
                 G.cam.y += (Math.random() - .5) * G.cam.shake * 0.4;
                 G.cam.shake -= dt * 80; if (G.cam.shake < 0) G.cam.shake = 0 }
 
+            // ---- Particles & effects ----
             const now = performance.now();
             if (isOffroad && car.speed > 150) {
                 if (now - G._hapticTimer > 120) { Haptics.gravel();
@@ -1844,14 +1798,10 @@
                     22, vx: (Math.random() - .5) * 150 - Math.cos(car.angle) * 900, vy: (Math.random() - .5) *
                     150 - Math.sin(car.angle) * 900, life: .4, type: 'fire' });
 
-            for (const gh of G.ghosts) {
-                if (Math.random() > .5) G.particles.push({ x: gh.x + (Math.random() - .5) * 12, y: gh.y, vx: (Math
-                        .random() - .5) * 30, vy: -20, life: .5, type: 'ghost' });
-            }
-
             Audio.update(car.speed, maxS, isDrifting);
 
             spawnWorld();
+            // ---- Collisions ----
             for (let i = G.objects.length - 1; i >= 0; i--) {
                 const o = G.objects[i];
                 if (o.vy) o.y += o.vy * dt;
@@ -1863,17 +1813,21 @@
                         G.cam.shake = 35;
                         Haptics.collision();
                         Audio.playCrash();
-                        G.health -= 18;
-                        G.combo = 0;
-                        const dmg = 1 - G.health / 100;
-                        document.getElementById('damageOverlay').style.boxShadow = 'inset 0 0 160px rgba(255,0,60,' +
-                            dmg + ')';
-                        for (let j = 0; j < 18; j++) G.particles.push({ x: o.x, y: o.y, vx: (Math.random() - .5) *
-                                1400, vy: (Math.random() - .5) * 1400, life: 1.2, type: 'debris' });
-                        if (G.health <= 0) { gameOver('💥 TOTALED'); return }
+                        if (G.mode !== 'freeDrive') {
+                            G.health -= 18;
+                            G.combo = 0;
+                            const dmg = 1 - G.health / 100;
+                            document.getElementById('damageOverlay').style.boxShadow = 'inset 0 0 160px rgba(233,69,96,' +
+                                dmg + ')';
+                            for (let j = 0; j < 18; j++) G.particles.push({ x: o.x, y: o.y, vx: (Math.random() - .5) *
+                                    1400, vy: (Math.random() - .5) * 1400, life: 1.2, type: 'debris' });
+                            if (G.health <= 0) { gameOver('Crashed'); return }
+                        } else {
+                            // free drive: no damage, just push
+                        }
                     } else if (o.type === 'nitro') {
                         G.nitro = Math.min(100, G.nitro + 35);
-                        UI.notify('⚡ Nitro +35', 'success');
+                        UI.notify('Nitro +35', 'success');
                         Haptics.boost();
                         G.objects.splice(i, 1);
                         continue;
@@ -1884,9 +1838,11 @@
                 if ((o.type === 'block' || o.type === 'traffic') && d < 22 + o.s / 2 + 55 && car.speed > 400 && !o
                     ._missed) {
                     o._missed = true;
-                    G.score += 80;
-                    UI.notify('🚗 Near miss +80', 'warn');
-                    Haptics.nearMiss();
+                    if (G.mode !== 'freeDrive') {
+                        G.score += 80;
+                        UI.notify('Near miss +80', 'warn');
+                        Haptics.nearMiss();
+                    }
                 }
             }
 
@@ -1898,26 +1854,218 @@
                     .alpha <= 0 || G.skidMarks[i].y < G.cam.y - 200) G.skidMarks.splice(i, 1) }
             if (G.skidMarks.length > 800) G.skidMarks.splice(0, G.skidMarks.length - 800);
 
-            G.dist += (-car.vy) * dt * .01;
-            if (G.mode !== 'timeTrial' && G.mode !== 'freeDrive') G.score += car.speed * dt * .008 * (1 + G.combo *
-            .08);
-            if (G.mode === 'timeTrial') { G.time -= dt; if (G.time <= 0) { gameOver('⏱ TIME UP'); return } }
-            if (G.mode === 'traffic' && G.health < 30 && !G._healthWarn) { G._healthWarn = true;
-                UI.notify('⚠️ Low integrity!', 'danger') }
-            if (G.health > 40) G._healthWarn = false;
-
-            const distLabel = G.mode === 'timeTrial' ? Math.ceil(G.time) + 's' : (G.mode === 'drift' ? Math.floor(G
-                .driftScore) + 'pts' : Math.floor(G.dist) + 'm');
+            // ---- Update HUD ----
             document.getElementById('hudScore').textContent = Math.floor(G.score);
-            document.getElementById('hudDist').textContent = distLabel;
-            document.getElementById('speedVal').textContent = Math.floor(car.speed * .22);
-            document.getElementById('healthFill').style.transform = 'scaleX(' + Math.max(0, G.health) / 100 + ')';
-            document.getElementById('nitroFill').style.transform = 'scaleX(' + G.nitro / 100 + ')';
-            document.getElementById('gearVal').textContent = car.gear;
-            document.getElementById('rpmFill').style.width = (car.rpm / 5000 * 100) + '%';
+            document.getElementById('hudDist').textContent = Math.floor(G.dist) + 'm';
 
             if (car.speed < 50 && car.speed > 5 && G.frameCount % 15 === 0) Haptics.idle();
             if (car.speed > 600 && G.frameCount % 8 === 0) Haptics.highSpeed();
+        }
+
+        // ── DRAW CAR (detailed) ────────────────────────────────────────
+        function drawCar(x, y, angle, color, alpha = 1, scale = 1) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle + Math.PI / 2);
+            ctx.globalAlpha = alpha;
+            ctx.scale(scale, scale);
+
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = color + '66';
+            ctx.fillStyle = '#1a1a2e';
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.5;
+
+            ctx.beginPath();
+            ctx.moveTo(0, -28);
+            ctx.quadraticCurveTo(12, -24, 18, -12);
+            ctx.quadraticCurveTo(20, -4, 18, 8);
+            ctx.quadraticCurveTo(16, 18, 12, 26);
+            ctx.lineTo(6, 28);
+            ctx.lineTo(-6, 28);
+            ctx.lineTo(-12, 26);
+            ctx.quadraticCurveTo(-16, 18, -18, 8);
+            ctx.quadraticCurveTo(-20, -4, -18, -12);
+            ctx.quadraticCurveTo(-12, -24, 0, -28);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = 'rgba(74,124,247,0.15)';
+            ctx.beginPath();
+            ctx.moveTo(-8, -18);
+            ctx.quadraticCurveTo(0, -22, 8, -18);
+            ctx.lineTo(10, -8);
+            ctx.lineTo(-10, -8);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.fillStyle = color;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = color;
+            ctx.fillRect(-12, -22, 4, 4);
+            ctx.fillRect(8, -22, 4, 4);
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = '#e94560';
+            ctx.fillRect(-12, 22, 4, 4);
+            ctx.fillRect(8, 22, 4, 4);
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-10, -26);
+            ctx.lineTo(-14, -30);
+            ctx.lineTo(14, -30);
+            ctx.lineTo(10, -26);
+            ctx.stroke();
+
+            ctx.fillStyle = color;
+            ctx.fillRect(-18, -4, 4, 6);
+            ctx.fillRect(14, -4, 4, 6);
+
+            ctx.shadowBlur = 0;
+            ctx.restore();
+        }
+
+        // ── MODERN DASHBOARD ───────────────────────────────────────────
+        function drawDashboard() {
+            const dashW = Math.min(420, W * 0.7);
+            const dashH = 120;
+            const startX = (W - dashW) / 2;
+            const startY = H - dashH - 16;
+
+            // Background
+            ctx.fillStyle = 'rgba(10,10,18,0.88)';
+            ctx.shadowBlur = 30;
+            ctx.shadowColor = 'rgba(0,0,0,0.7)';
+            ctx.beginPath();
+            ctx.roundRect(startX, startY, dashW, dashH, 12);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            const car = G.car;
+            const speedKmh = car.speed * 0.22;
+            const rpmPct = car.rpm / 5000;
+            const nitroPct = G.nitro / 100;
+            const healthPct = G.health / 100;
+
+            // ---- Speed (left) ----
+            const speedX = startX + 20;
+            const speedY = startY + 28;
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.font = '9px ' + getComputedStyle(document.body).fontFamily;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('SPEED', speedX, speedY - 6);
+
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 34px ' + getComputedStyle(document.body).fontFamily;
+            ctx.textBaseline = 'top';
+            ctx.fillText(Math.floor(speedKmh), speedX, speedY);
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.font = '12px ' + getComputedStyle(document.body).fontFamily;
+            ctx.fillText('KM/H', speedX + 80, speedY + 14);
+
+            // ---- RPM (middle-left) ----
+            const rpmX = startX + 150;
+            const rpmY = startY + 24;
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.font = '9px ' + getComputedStyle(document.body).fontFamily;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('RPM', rpmX, rpmY - 6);
+
+            // RPM bar
+            const barW = 80;
+            const barH = 12;
+            const barY2 = rpmY + 8;
+            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+            ctx.beginPath();
+            ctx.roundRect(rpmX, barY2, barW, barH, 4);
+            ctx.fill();
+
+            const rpmColor = rpmPct > 0.8 ? '#e94560' : '#4a7cf7';
+            ctx.fillStyle = rpmColor;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = rpmColor + '55';
+            ctx.beginPath();
+            ctx.roundRect(rpmX, barY2, barW * Math.min(rpmPct, 1), barH, 4);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // RPM value
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 16px ' + getComputedStyle(document.body).fontFamily;
+            ctx.textBaseline = 'top';
+            ctx.fillText(Math.floor(car.rpm / 1000) + 'k', rpmX + barW + 8, rpmY + 2);
+
+            // ---- Gear (middle-right) ----
+            const gearX = startX + 270;
+            const gearY = startY + 24;
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.font = '9px ' + getComputedStyle(document.body).fontFamily;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('GEAR', gearX + 20, gearY - 6);
+
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 28px ' + getComputedStyle(document.body).fontFamily;
+            ctx.textBaseline = 'top';
+            ctx.fillText(car.gear, gearX + 20, gearY);
+
+            // ---- Nitro & Health bars (bottom) ----
+            const barY3 = startY + dashH - 28;
+            const barW2 = (dashW - 50) / 2;
+
+            // Nitro
+            const nX = startX + 15;
+            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+            ctx.beginPath();
+            ctx.roundRect(nX, barY3, barW2, 10, 4);
+            ctx.fill();
+            ctx.fillStyle = '#4a7cf7';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#4a7cf755';
+            ctx.beginPath();
+            ctx.roundRect(nX, barY3, barW2 * nitroPct, 10, 4);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.font = '7px ' + getComputedStyle(document.body).fontFamily;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText('NITRO', nX + 4, barY3 + 1);
+
+            // Health
+            const hX = nX + barW2 + 10;
+            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+            ctx.beginPath();
+            ctx.roundRect(hX, barY3, barW2, 10, 4);
+            ctx.fill();
+            const hpColor = healthPct > 0.5 ? '#34c759' : '#e94560';
+            ctx.fillStyle = hpColor;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = hpColor + '55';
+            ctx.beginPath();
+            ctx.roundRect(hX, barY3, barW2 * healthPct, 10, 4);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.fillText('HP', hX + 4, barY3 + 1);
+
+            // ---- Mode label (right) ----
+            ctx.fillStyle = 'rgba(255,255,255,0.12)';
+            ctx.font = '8px ' + getComputedStyle(document.body).fontFamily;
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(G.mode.toUpperCase(), startX + dashW - 10, startY + dashH - 4);
         }
 
         // ── RENDER ─────────────────────────────────────────────────────
@@ -1950,6 +2098,7 @@
                 ctx.fill();
                 ctx.shadowBlur = 0 }
 
+            // Road
             const step = 40,
                 startY = Math.floor((G.cam.y - 50) / step) * step,
                 endY = startY + H + step * 2;
@@ -1969,19 +2118,19 @@
 
             ctx.shadowBlur = 18;
             ctx.lineWidth = 3;
-            ctx.shadowColor = 'rgba(0,229,255,.3)';
-            ctx.strokeStyle = '#00e5ff';
+            ctx.shadowColor = 'rgba(74,124,247,.3)';
+            ctx.strokeStyle = '#4a7cf7';
             ctx.beginPath();
             for (const p of pL) ctx.lineTo(p.x, p.y);
             ctx.stroke();
-            ctx.shadowColor = 'rgba(255,0,255,.3)';
-            ctx.strokeStyle = '#ff00ff';
+            ctx.shadowColor = 'rgba(233,69,96,.3)';
+            ctx.strokeStyle = '#e94560';
             ctx.beginPath();
             for (const p of pR) ctx.lineTo(p.x, p.y);
             ctx.stroke();
             ctx.shadowBlur = 0;
 
-            ctx.strokeStyle = 'rgba(255,255,255,.22)';
+            ctx.strokeStyle = 'rgba(255,255,255,.15)';
             ctx.lineWidth = 2;
             ctx.setLineDash([28, 48]);
             ctx.lineDashOffset = -G.cam.y % 76;
@@ -1990,6 +2139,7 @@
             ctx.stroke();
             ctx.setLineDash([]);
 
+            // Headlights
             const cSX = G.car.x - G.cam.x,
                 cSY = G.car.y - G.cam.y;
             if (dark > .25) {
@@ -2007,6 +2157,7 @@
                 ctx.globalCompositeOperation = 'source-over';
             }
 
+            // Skid marks
             for (const sm of G.skidMarks) { const sx = sm.x - G.cam.x,
                     sy = sm.y - G.cam.y; if (sy > -20 && sy < H + 20) { ctx.fillStyle = 'rgba(10,10,12,' + sm.alpha *
                         .6 + ')'; const ox = Math.cos(sm.a + Math.PI / 2) * 8,
@@ -2016,33 +2167,15 @@
                     ctx.arc(sx + ox, sy + oy, 3, 0, Math.PI * 2);
                     ctx.fill() } }
 
+            // AI cars
             for (const ai of G.aiCars) {
                 const sx = ai.x - G.cam.x,
                     sy = ai.y - G.cam.y;
                 if (sy < -50 || sy > H + 50) continue;
-                ctx.save();
-                ctx.translate(sx, sy);
-                ctx.rotate(ai.angle + Math.PI / 2);
-                ctx.shadowBlur = 24;
-                ctx.shadowColor = ai.color + '66';
-                ctx.fillStyle = '#0a0a12';
-                ctx.strokeStyle = ai.color;
-                ctx.lineWidth = 2.5;
-                ctx.beginPath();
-                ctx.moveTo(0, -26);
-                ctx.lineTo(16, -12);
-                ctx.lineTo(16, 24);
-                ctx.lineTo(-16, 24);
-                ctx.lineTo(-16, -12);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = ai.color;
-                ctx.fillRect(-12, -22, 24, 6);
-                ctx.restore();
+                drawCar(sx, sy, ai.angle, ai.color, 0.8, 0.7);
             }
 
+            // Objects
             for (const o of G.objects) {
                 const sx = o.x - G.cam.x,
                     sy = o.y - G.cam.y;
@@ -2059,8 +2192,8 @@
                         ctx.strokeRect(sx - o.s / 2, sy - o.s / 2, o.s, o.s) }
                     ctx.shadowBlur = 0;
                 } else if (o.type === 'nitro') { ctx.shadowBlur = 28;
-                    ctx.shadowColor = '#00e5ff88';
-                    ctx.fillStyle = '#00e5ff';
+                    ctx.shadowColor = '#4a7cf788';
+                    ctx.fillStyle = '#4a7cf7';
                     ctx.beginPath();
                     ctx.arc(sx, sy, o.s / 2, 0, Math.PI * 2);
                     ctx.fill();
@@ -2075,31 +2208,17 @@
                     ctx.shadowBlur = 0 }
             }
 
+            // Ghosts
             for (const gh of G.ghosts) {
                 const gx = gh.x - G.cam.x,
                     gy = gh.y - G.cam.y;
                 if (gy < -50 || gy > H + 50) continue;
-                ctx.save();
-                ctx.translate(gx, gy);
-                ctx.rotate(gh.angle + Math.PI / 2);
-                ctx.globalAlpha = .35;
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = '#ff00ff';
-                ctx.strokeStyle = '#ff00ff';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(0, -28);
-                ctx.lineTo(18, -14);
-                ctx.lineTo(18, 26);
-                ctx.lineTo(-18, 26);
-                ctx.lineTo(-18, -14);
-                ctx.closePath();
-                ctx.stroke();
-                ctx.shadowBlur = 0;
+                ctx.globalAlpha = 0.3;
+                drawCar(gx, gy, gh.angle, '#e94560', 0.3, 0.7);
                 ctx.globalAlpha = 1;
-                ctx.restore();
             }
 
+            // Particles
             for (const p of G.particles) {
                 const sx = p.x - G.cam.x,
                     sy = p.y - G.cam.y;
@@ -2111,19 +2230,19 @@
                     ctx.beginPath();
                     ctx.arc(sx, sy, 8 + (1 - p.life) * 8, 0, Math.PI * 2);
                     ctx.fill() } else if (p.type === 'fire') { ctx.shadowBlur = 16;
-                    ctx.shadowColor = '#00e5ff';
-                    ctx.fillStyle = '#00e5ff';
+                    ctx.shadowColor = '#4a7cf7';
+                    ctx.fillStyle = '#4a7cf7';
                     ctx.fillRect(sx - 3, sy - 3, 6, 6);
-                    ctx.shadowBlur = 0 } else if (p.type === 'debris') { ctx.fillStyle = ['#ff003c', '#ff6a00',
-                        '#ffea00', '#00e5ff'
+                    ctx.shadowBlur = 0 } else if (p.type === 'debris') { ctx.fillStyle = ['#e94560', '#ff6b35',
+                        '#ffcc00', '#4a7cf7'
                     ][Math.floor(Math.random() * 4)];
                     ctx.fillRect(sx - 3, sy - 3, 5, 5) } else if (p.type === 'spray') { ctx.fillStyle = 'rgba(180,200,255,' +
                         p.life * .35 + ')';
                     ctx.beginPath();
                     ctx.arc(sx, sy, 12 + (1 - p.life) * 6, 0, Math.PI * 2);
                     ctx.fill() } else if (p.type === 'ghost') { ctx.shadowBlur = 10;
-                    ctx.shadowColor = '#ff00ff';
-                    ctx.fillStyle = 'rgba(255,0,255,' + p.life * .6 + ')';
+                    ctx.shadowColor = '#e94560';
+                    ctx.fillStyle = 'rgba(233,69,96,' + p.life * .6 + ')';
                     ctx.beginPath();
                     ctx.arc(sx, sy, 4, 0, Math.PI * 2);
                     ctx.fill();
@@ -2131,43 +2250,14 @@
                 ctx.globalAlpha = 1;
             }
 
+            // Player car
             const cCol = CARS[STORE.currentCar].color;
-            ctx.save();
-            ctx.translate(cSX, cSY);
-            ctx.rotate(G.car.angle + Math.PI / 2);
-            ctx.shadowBlur = 36;
-            ctx.shadowColor = cCol + '55';
-            ctx.fillStyle = '#0a0a12';
-            ctx.strokeStyle = cCol;
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(0, -28);
-            ctx.lineTo(18, -14);
-            ctx.lineTo(18, 26);
-            ctx.lineTo(-18, 26);
-            ctx.lineTo(-18, -14);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = 'rgba(0,229,255,.15)';
-            ctx.fillRect(-10, -22, 20, 8);
-            ctx.fillStyle = cCol;
-            ctx.shadowBlur = 12;
-            ctx.shadowColor = cCol;
-            ctx.fillRect(-14, -24, 6, 4);
-            ctx.fillRect(8, -24, 6, 4);
-            ctx.shadowBlur = 0;
-            if (G._nitroWasOn) { ctx.shadowBlur = 26;
-                ctx.shadowColor = '#ff00ff';
-                ctx.fillStyle = '#ff00ff';
-                ctx.fillRect(-8, 24, 16, 6);
-                ctx.shadowBlur = 0 }
-            ctx.restore();
+            drawCar(cSX, cSY, G.car.angle, cCol, 1, 0.9);
 
+            // Speed lines
             if (G.car.speed > 700) {
                 const al = Math.min((G.car.speed - 700) / 1500, .5);
-                ctx.strokeStyle = 'rgba(0,229,255,' + al + ')';
+                ctx.strokeStyle = 'rgba(74,124,247,' + al + ')';
                 ctx.lineWidth = 1;
                 const n = Math.floor((G.car.speed - 700) / 60) + 5;
                 for (let i = 0; i < n; i++) { const lx = Math.random() * W,
@@ -2196,36 +2286,8 @@
             ctx.fillStyle = fg;
             ctx.fillRect(0, 0, W, H * .5);
 
-            mmCtx.clearRect(0, 0, 160, 36);
-            mmCtx.fillStyle = 'rgba(0,0,0,.3)';
-            mmCtx.fillRect(0, 0, 160, 36);
-            mmCtx.strokeStyle = 'rgba(255,255,255,.15)';
-            mmCtx.lineWidth = 1.5;
-            mmCtx.beginPath();
-            for (let i = 0; i < 40; i++) { const wy = G.car.y - 800 + i * 40,
-                    wcx = getRoadCenter(wy),
-                    mx = (wcx - G.car.x) / 4 + 80,
-                    my = 30 - (wy - G.car.y) / 4; if (i === 0) mmCtx.moveTo(mx, my);
-                else mmCtx.lineTo(mx, my) }
-            mmCtx.stroke();
-            for (const gh of G.ghosts) { mmCtx.fillStyle = 'rgba(255,0,255,.8)';
-                mmCtx.shadowBlur = 6;
-                mmCtx.shadowColor = '#ff00ff';
-                mmCtx.beginPath();
-                mmCtx.arc((gh.x - G.car.x) / 4 + 80, 30 - (gh.y - G.car.y) / 4, 2.5, 0, Math.PI * 2);
-                mmCtx.fill();
-                mmCtx.shadowBlur = 0 }
-            for (const ai of G.aiCars) { mmCtx.fillStyle = ai.color;
-                mmCtx.beginPath();
-                mmCtx.arc((ai.x - G.car.x) / 4 + 80, 30 - (ai.y - G.car.y) / 4, 2.5, 0, Math.PI * 2);
-                mmCtx.fill() }
-            mmCtx.shadowBlur = 8;
-            mmCtx.shadowColor = cCol;
-            mmCtx.fillStyle = cCol;
-            mmCtx.beginPath();
-            mmCtx.arc(80, 30, 3, 0, Math.PI * 2);
-            mmCtx.fill();
-            mmCtx.shadowBlur = 0;
+            // Draw modern dashboard
+            drawDashboard();
         }
 
         // ── GAME OVER ──────────────────────────────────────────────────
@@ -2239,18 +2301,25 @@
             STORE.stats.totalDist += G.dist;
             STORE.stats.races++;
             if (G.topSpeed > STORE.stats.maxSpeed) STORE.stats.maxSpeed = G.topSpeed;
+
+            const mode = G.mode;
+            if (STORE.leaderboard[mode]) {
+                STORE.leaderboard[mode].push({ name: 'Player', score: Math.floor(G.score), dist: Math.floor(G.dist) });
+                STORE.leaderboard[mode].sort((a, b) => b.score - a.score);
+                if (STORE.leaderboard[mode].length > 20) STORE.leaderboard[mode].pop();
+            }
             STORE.save();
+
             document.getElementById('goTitle').textContent = title;
             document.getElementById('goScore').textContent = Math.floor(G.score);
-            document.getElementById('goDist').textContent = Math.floor(G.mode === 'drift' ? G.driftScore : G.dist) + (
-                G.mode === 'drift' ? ' pts' : 'm');
+            document.getElementById('goDist').textContent = Math.floor(G.mode === 'drift' ? G.driftScore : G.dist) + 'm';
             document.getElementById('goXp').textContent = '+' + xpE;
             UI.show('gameOver');
             const lvl = Math.floor(STORE.xp / 800);
             if (lvl >= 3 && !STORE.unlockedCars.includes(1)) { STORE.unlockedCars.push(1);
-                UI.notify('🚗 PULSE GT Unlocked!', 'success') }
+                UI.notify('PULSE GT Unlocked!', 'success') }
             if (lvl >= 7 && !STORE.unlockedCars.includes(2)) { STORE.unlockedCars.push(2);
-                UI.notify('🔥 HELLFIRE Unlocked!', 'success') }
+                UI.notify('HELLFIRE Unlocked!', 'success') }
             STORE.save();
         }
 
@@ -2291,9 +2360,9 @@
             document.getElementById('gStatHnd').style.width = (c.hnd / 4 * 100) + '%';
             ['gStatSpd', 'gStatAcc', 'gStatHnd'].forEach(id => document.getElementById(id).style.background = c.color);
             const eq = document.getElementById('btnGarageEquip');
-            if (!unlocked) { eq.textContent = '🔒 Locked';
-                eq.disabled = true } else if (STORE.currentCar === garageIdx) { eq.textContent = '✓ Equipped';
-                eq.disabled = true } else { eq.textContent = '⚡ Equip';
+            if (!unlocked) { eq.textContent = 'Locked';
+                eq.disabled = true } else if (STORE.currentCar === garageIdx) { eq.textContent = 'Equipped';
+                eq.disabled = true } else { eq.textContent = 'Equip';
                 eq.disabled = false }
         }
         document.getElementById('btnGarage').addEventListener('click', () => { Haptics.click();
@@ -2313,8 +2382,37 @@
                 .unlockedCars.includes(garageIdx)) { STORE.currentCar = garageIdx;
                 STORE.save();
                 updateGarage();
-                UI.notify('✅ ' + CARS[garageIdx].name + ' equipped', 'success') } });
+                UI.notify(CARS[garageIdx].name + ' equipped', 'success') } });
 
+        // Leaderboard
+        function updateLeaderboard(mode) {
+            const list = document.getElementById('lbList');
+            list.innerHTML = '';
+            const entries = STORE.leaderboard[mode] || [];
+            if (entries.length === 0) {
+                list.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">No entries yet</div>';
+                return;
+            }
+            entries.slice(0, 10).forEach((entry, i) => {
+                const div = document.createElement('div');
+                div.className = 'leaderboard-entry';
+                div.innerHTML = '<span class="rank">' + (i + 1) + '</span><span class="name">' + entry.name +
+                    '</span><span class="score">' + entry.score + ' (' + entry.dist + 'm)</span>';
+                list.appendChild(div);
+            });
+        }
+        document.getElementById('btnLeaderboard').addEventListener('click', () => { Haptics.click();
+            UI.show('leaderboard');
+            updateLeaderboard('arcade');
+        });
+        document.querySelectorAll('.lb-mode').forEach(b => b.addEventListener('click', function() {
+            Haptics.click();
+            updateLeaderboard(this.dataset.mode);
+        }));
+        document.getElementById('btnLbBack').addEventListener('click', () => { Haptics.click();
+            UI.show('mainMenu') });
+
+        // Settings
         function syncSettings() {
             const s = STORE.settings;
             const tog = (id, val) => { const el = document.getElementById(id);
@@ -2352,6 +2450,7 @@
                 .value) || 120;
             STORE.save() });
 
+        // Pause
         document.getElementById('pauseBtn').addEventListener('click', () => { if (G.state === 'play') { Haptics.click();
                 G.state = 'pause';
                 UI.show('pauseMenu');
@@ -2369,6 +2468,7 @@
             UI.show('mainMenu');
             updateMenuStats() });
 
+        // Game over
         document.getElementById('btnGoRestart').addEventListener('click', () => { Haptics.click();
             initGame(G.mode) });
         document.getElementById('btnGoMenu').addEventListener('click', () => { Haptics.click();
@@ -2392,6 +2492,24 @@
         setTimeout(() => document.getElementById('loading').classList.add('hidden'), 600);
         UI.show('mainMenu');
 
+        // Polyfill roundRect
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                if (r > w / 2) r = w / 2;
+                if (r > h / 2) r = h / 2;
+                this.moveTo(x + r, y);
+                this.lineTo(x + w - r, y);
+                this.quadraticCurveTo(x + w, y, x + w, y + r);
+                this.lineTo(x + w, y + h - r);
+                this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                this.lineTo(x + r, y + h);
+                this.quadraticCurveTo(x, y + h, x, y + h - r);
+                this.lineTo(x, y + r);
+                this.quadraticCurveTo(x, y, x + r, y);
+                return this;
+            };
+        }
+
         (() => { const c = document.getElementById('particles-bg'); for (let i = 0; i < 28; i++) { const p = document
                     .createElement('div');
                 p.className = 'particle';
@@ -2401,7 +2519,7 @@
                     20 + 's';
                 c.appendChild(p) } })();
 
-        console.log('🏎️ HAPTIC DRIFT v4 — Premium');
+        console.log('HAPTIC DRIFT v4 — Modern Cockpit');
     </script>
 </body>
 </html>
